@@ -23,7 +23,7 @@ let package = Package(
                 .product(name: "VaporAWSLambdaRuntime", package: "vapor-aws-lambda-runtime")
             ],
             swiftSettings: [
-                .unsafeFlags(["-cross-module-optimization"], .when(configuration: .release))
+                //.unsafeFlags(["-cross-module-optimization"], .when(configuration: .release))
             ],
             linkerSettings: [
                 .unsafeFlags(["-v"], .when(configuration: .release))

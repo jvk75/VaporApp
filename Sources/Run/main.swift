@@ -1,4 +1,3 @@
-import Glibc
 import App
 import Vapor
 import Backtrace
