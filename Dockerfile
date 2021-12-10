@@ -28,7 +28,7 @@ RUN swift package resolve
 COPY . .
 
 # Build everything, with optimizations
-RUN swift build -c release 
+RUN swift build -c release
 #-Xswiftc -static-stdlib
 #-Xswiftc -static-executable
 
@@ -38,7 +38,7 @@ WORKDIR /staging
 # Copy main executable to staging area
 RUN cp "$(swift build --package-path /build -c release --show-bin-path)/Run" ./
 
-RUN ldd "./Run"
+RUN ldd "./Run" | grep swift | awk '{print $3}'
 
 # Copy any resouces from the public directory and views directory if the directories exist
 # Ensure that by default, neither the directory nor any of its contents are writable.
@@ -62,18 +62,18 @@ FROM swift:amazonlinux2-slim
 #    && yum install -y mod_ssl openssl-devel
 
 # Create a vapor user and group with /app as its home directory
-RUN useradd --user-group --create-home --system --skel /dev/null --home-dir /app vapor
+# RUN useradd --user-group --create-home --system --skel /dev/null --home-dir /app vapor
 
 # Switch to the new home directory
 WORKDIR /app
 
 # Copy built executable and any staged resources from builder
-COPY --from=build --chown=vapor:vapor /staging /app
+COPY --from=build /staging /app
 
 # RUN ls -al
 
 # Ensure all further commands run as the vapor user
-USER vapor:vapor
+# USER vapor:vapor
 
 # Let Docker bind to port 8080
 EXPOSE 8080
