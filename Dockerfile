@@ -1,18 +1,18 @@
 # ================================
 # Build image
 # ================================
-# FROM swift:amazonlinux2 as build
-FROM swiftarm/swift:5.5.1-ubuntu-focal as build
+FROM swift:amazonlinux2 as build
+#FROM swiftarm/swift:5.5.1-ubuntu-focal as build
 
 # Install OS updates and, if needed, sqlite3
-RUN export DEBIAN_FRONTEND=noninteractive DEBCONF_NONINTERACTIVE_SEEN=true \
-    && apt-get -q update \
-    && apt-get -q dist-upgrade -y \
-    && apt-get -q -y install libssl-dev \
-    && rm -rf /var/lib/apt/lists/*
+#RUN export DEBIAN_FRONTEND=noninteractive DEBCONF_NONINTERACTIVE_SEEN=true \
+#    && apt-get -q update \
+#    && apt-get -q dist-upgrade -y \
+#    && apt-get -q -y install libssl-dev \
+#    && rm -rf /var/lib/apt/lists/*
 
-# RUN yum update -y \
-#     && yum install -y mod_ssl openssl-devel
+RUN yum update -y \
+     && yum install -y mod_ssl openssl-devel
 
 # Set up a build area
 WORKDIR /build
@@ -48,9 +48,9 @@ RUN [ -d /build/Resources ] && { mv /build/Resources ./Resources && chmod -R a-w
 # ================================
 # Run image
 # ================================
-# FROM swift:amazonlinux2-slim
+FROM swift:amazonlinux2-slim
 # FROM swiftarm/swift:5.5.1-ubuntu-focal-slim
-FROM ubuntu:focal
+# FROM ubuntu:focal
 
 # Make sure all system packages are up to date.
 # RUN export DEBIAN_FRONTEND=noninteractive DEBCONF_NONINTERACTIVE_SEEN=true && \
