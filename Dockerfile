@@ -1,13 +1,18 @@
 # ================================
 # Build image
 # ================================
-FROM swift:5.5-focal as build
+# FROM swift:amazonlinux2 as build
+FROM swiftarm/swift:5.5.1-ubuntu-focal as build
 
 # Install OS updates and, if needed, sqlite3
 RUN export DEBIAN_FRONTEND=noninteractive DEBCONF_NONINTERACTIVE_SEEN=true \
     && apt-get -q update \
     && apt-get -q dist-upgrade -y \
+    && apt-get -q -y install libssl-dev \
     && rm -rf /var/lib/apt/lists/*
+
+# RUN yum update -y \
+#     && yum install -y mod_ssl openssl-devel
 
 # Set up a build area
 WORKDIR /build
@@ -23,7 +28,9 @@ RUN swift package resolve
 COPY . .
 
 # Build everything, with optimizations
-RUN swift build -c release
+RUN swift build -c release -Xswiftc -static-executable
+#-Xswiftc -static-stdlib
+#-Xswiftc -static-executable
 
 # Switch to the staging area
 WORKDIR /staging
@@ -36,14 +43,21 @@ RUN cp "$(swift build --package-path /build -c release --show-bin-path)/Run" ./
 RUN [ -d /build/Public ] && { mv /build/Public ./Public && chmod -R a-w ./Public; } || true
 RUN [ -d /build/Resources ] && { mv /build/Resources ./Resources && chmod -R a-w ./Resources; } || true
 
+# RUN ls -al
+
 # ================================
 # Run image
 # ================================
-FROM swift:5.5-focal-slim
+# FROM swift:amazonlinux2-slim
+# FROM swiftarm/swift:5.5.1-ubuntu-focal-slim
+FROM ubuntu:focal
 
 # Make sure all system packages are up to date.
-RUN export DEBIAN_FRONTEND=noninteractive DEBCONF_NONINTERACTIVE_SEEN=true && \
-    apt-get -q update && apt-get -q dist-upgrade -y && rm -r /var/lib/apt/lists/*
+# RUN export DEBIAN_FRONTEND=noninteractive DEBCONF_NONINTERACTIVE_SEEN=true && \
+#   apt-get -q update && apt-get -q dist-upgrade -y && rm -r /var/lib/apt/lists/*
+
+#RUN yum update -y \
+#    && yum install -y mod_ssl openssl-devel
 
 # Create a vapor user and group with /app as its home directory
 RUN useradd --user-group --create-home --system --skel /dev/null --home-dir /app vapor
@@ -53,6 +67,8 @@ WORKDIR /app
 
 # Copy built executable and any staged resources from builder
 COPY --from=build --chown=vapor:vapor /staging /app
+
+# RUN ls -al
 
 # Ensure all further commands run as the vapor user
 USER vapor:vapor
