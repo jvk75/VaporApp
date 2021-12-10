@@ -38,7 +38,7 @@ WORKDIR /staging
 # Copy main executable to staging area
 RUN cp "$(swift build --package-path /build -c release --show-bin-path)/Run" ./
 
-RUN ldd "./Run" | grep swift | awk '{print $3}'
+RUN ldd "./Run" | grep swift | awk '{print $3}' | xargs cp -Lv -t "./"
 
 # Copy any resouces from the public directory and views directory if the directories exist
 # Ensure that by default, neither the directory nor any of its contents are writable.
@@ -50,9 +50,10 @@ RUN [ -d /build/Resources ] && { mv /build/Resources ./Resources && chmod -R a-w
 # ================================
 # Run image
 # ================================
-FROM swift:amazonlinux2-slim
+# FROM swift:amazonlinux2-slim
 # FROM swiftarm/swift:5.5.1-ubuntu-focal-slim
 # FROM ubuntu:focal
+FROM amazonlinux:2
 
 # Make sure all system packages are up to date.
 # RUN export DEBIAN_FRONTEND=noninteractive DEBCONF_NONINTERACTIVE_SEEN=true && \
@@ -70,7 +71,7 @@ WORKDIR /app
 # Copy built executable and any staged resources from builder
 COPY --from=build /staging /app
 
-# RUN ls -al
+RUN ls -al
 
 # Ensure all further commands run as the vapor user
 # USER vapor:vapor
