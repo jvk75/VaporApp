@@ -28,7 +28,7 @@ RUN swift package resolve
 COPY . .
 
 # Build everything, with optimizations
-RUN swift build -c release
+RUN swift build -c debug
 #-Xswiftc -static-stdlib
 #-Xswiftc -static-executable
 
@@ -36,7 +36,7 @@ RUN swift build -c release
 WORKDIR /staging
 
 # Copy main executable to staging area
-RUN cp "$(swift build --package-path /build -c release --show-bin-path)/Run" ./
+RUN cp "$(swift build --package-path /build -c debug --show-bin-path)/Run" ./
 
 RUN ldd "./Run" | grep swift | awk '{print $3}' | xargs cp -Lv -t "./"
 
