@@ -28,7 +28,7 @@ RUN swift package resolve
 COPY . .
 
 # Build everything, with optimizations
-RUN swift build -c release -Xswiftc -static-executable
+RUN swift build -c release 
 #-Xswiftc -static-stdlib
 #-Xswiftc -static-executable
 
@@ -37,6 +37,8 @@ WORKDIR /staging
 
 # Copy main executable to staging area
 RUN cp "$(swift build --package-path /build -c release --show-bin-path)/Run" ./
+
+RUN ldd "./Run"
 
 # Copy any resouces from the public directory and views directory if the directories exist
 # Ensure that by default, neither the directory nor any of its contents are writable.
